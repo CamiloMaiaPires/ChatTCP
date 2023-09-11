@@ -3,7 +3,6 @@ import threading
 from datetime import datetime
 
 def broadcast(sender, data):
-    data = data.decode('utf-8')
     hora = datetime.now()
     msg = hora.strftime('%d/%m/%Y %H:%M:%S ') + str(sender.getpeername()[1]) + ": " + data
     for clt in clients:
@@ -13,21 +12,26 @@ def broadcast(sender, data):
             except:
                 client.close()
                 clients.remove(client)
+
 def handleClient(client):
     #recebendo dados do cliente
     while True:
         try:
             data = client.recv(1024)
             if data.decode('utf-8') == 'quit()':
-                print("{} saiu da sala".format(client.getpeername()[1]))
-                broadcast(client, "{} saiu da sala".format(client.getpeername()[1]))
+                desconexao = "Voce se desconectou da sala"
+                client.send(desconexao.encode('utf-8'))
+                print(str(client.getpeername()[1]) + " saiu da sala.")
+                broadcast(client, str(client.getpeername()[1]) + " saiu da sala.")
                 client.close()
+                break
             else:
+                data = data.decode('utf-8')
                 broadcast(client, data)
         except:
             clients.remove(client)
+            broadcast(client, f"{str(client.getpeername()[1])} saiu da sala.")
             client.close()
-            broadcast(f"{str(client.getpeername()[1])} saiu da sala.", client)
             break
 
 familia = socket.AF_INET #endereço da família ipv4 

@@ -10,14 +10,14 @@ def receiveMessage(client):
     while True:
         data = client.recv(1024).decode('utf-8')
         print(data)
+        if(data == "Voce se desconectou da sala"):
+            break
+    
+    return
 
 thread = threading.Thread(target=receiveMessage, args=(client, ))
 thread.start()
 
 while client:
     message = input()
-    if message == 'quit()':
-        client.sendall(message.encode('utf-8'))
-        print("Voce se desconectou da sala {}".format(server_address))
-        client.close()
     client.sendall(message.encode('utf-8'))
